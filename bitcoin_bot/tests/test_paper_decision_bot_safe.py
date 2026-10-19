@@ -1,16 +1,26 @@
 import tempfile
 import unittest
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
-from unittest.mock import patch
+from types import SimpleNamespace
+from unittest.mock import Mock, patch
 
 import pandas as pd
 
 from core.paper_safety import PaperBook
-from paper_decision_bot_safe import quote_prices, run_cycle
+from paper_decision_bot_safe import lock_state_file, quote_prices, run_cycle
 
 
 class SafeDecisionBotTests(unittest.TestCase):
+    def test_windows_state_lock_uses_standard_library(self):
+        win_locks = SimpleNamespace(LK_NBLCK=2, locking=Mock())
+        with tempfile.TemporaryFile() as lock:
+            with patch("paper_decision_bot_safe.os", SimpleNamespace(name="nt")):
+                with patch.dict(sys.modules, {"msvcrt": win_locks}):
+                    lock_state_file(lock)
+            win_locks.locking.assert_called_once_with(lock.fileno(), 2, 1)
+
     def test_stale_and_wide_quote_rejected(self):
         now = datetime(2026, 7, 1, tzinfo=timezone.utc)
         with self.assertRaises(ValueError):

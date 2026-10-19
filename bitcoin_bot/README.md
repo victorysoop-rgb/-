@@ -13,13 +13,32 @@
 3. **장기간 페이퍼 관찰:** 연결 테스트가 성공한 다음 `python paper_decision_bot_safe.py --state paper_state.json --loop`로 실행하고 거래 기록과 최대 손실을 관찰한다. 상태 파일을 삭제하면 가상 포지션과 기록이 사라진다.
 4. **수익성 검증:** 별도의 장기간 원시 시세와 실제 수수료·슬리피지를 이용한 시간순 보류 백테스트가 필요하다. 앞서 제공된 SHORT 신호 CSV는 이 LONG 전략의 성능 근거가 아니다.
 
-Python 3.12에서 설치:
+## 처음 설치하기
+
+ZIP을 내려받아 압축을 푼 뒤 `bitcoin_bot` 폴더에서 터미널을 연다. Python 3.12를 먼저 설치하고 다음 명령으로 버전을 확인한다.
+
+윈도우 PowerShell:
+
+```powershell
+py -3.12 --version
+py -3.12 -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements.txt
+.\.venv\Scripts\python.exe -m unittest discover -s tests -v
+.\.venv\Scripts\python.exe paper_decision_bot_safe.py --state paper_state.json
+.\.venv\Scripts\python.exe paper_decision_bot_safe.py --state paper_state.json --loop
+```
+
+macOS 또는 리눅스 터미널:
 
 ```bash
-cd bitcoin_bot
-python3 -m venv --system-site-packages .venv
+python3.12 --version
+python3.12 -m venv .venv
 .venv/bin/python -m pip install -r requirements.txt
 .venv/bin/python -m unittest discover -s tests -v
+.venv/bin/python paper_decision_bot_safe.py --state paper_state.json
+.venv/bin/python paper_decision_bot_safe.py --state paper_state.json --loop
 ```
+
+마지막 `--loop` 명령은 60초 간격으로 계속 실행된다. 종료하려면 `Ctrl+C`를 누른다. 한 번 실행 명령에서 `NO_TRADE`는 이번 확인에서 신호가 없었다는 뜻이고 `DATA_ERROR`는 시세 연결 오류다. `paper_state.json`에 가상 잔고와 거래 기록이 저장되므로 보관한다. 거래소 API 키는 입력하지 않는다.
 
 공개 현물 데이터는 Binance의 시장 데이터 전용 주소 `data-api.binance.vision`을 사용한다. CCXT는 현재 환경의 HTTPS 프록시와 CA 신뢰 설정을 사용하며, 시장 목록은 현물만 가져온다. 2026-10-19 공개 시세를 이용한 1회 실행에서 `NO_TRADE`로 정상 종료했다. 장기간 페이퍼 거래와 전략 수익성 검증은 아직 진행하지 않았다.

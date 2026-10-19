@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 import argparse
-import fcntl
 import math
+import os
 import time
 from datetime import datetime, timezone
 from pathlib import Path
@@ -14,6 +14,26 @@ from core.paper_safety import PaperBook
 
 SYMBOLS = ("BTC/USDT", "ETH/USDT", "SOL/USDT")
 TIMEFRAME_MS = 300_000
+
+
+def lock_state_file(lock) -> None:
+    """Allow only one runner per state file on Windows and Unix."""
+    if os.name == "nt":
+        import msvcrt
+
+        lock.seek(0, 2)
+        if lock.tell() == 0:
+            lock.write(b"0")
+            lock.flush()
+        lock.seek(0)
+        try:
+            msvcrt.locking(lock.fileno(), msvcrt.LK_NBLCK, 1)
+        except OSError as exc:
+            raise BlockingIOError("State file is already locked") from exc
+    else:
+        import fcntl
+
+        fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
 
 
 def quote_prices(ticker: dict, now: datetime) -> tuple[float, float]:
@@ -96,9 +116,9 @@ def main() -> None:
     args = parser.parse_args()
     lock_path = args.state.with_suffix(args.state.suffix + ".lock")
     lock_path.parent.mkdir(parents=True, exist_ok=True)
-    with lock_path.open("w") as lock:
+    with lock_path.open("a+b") as lock:
         try:
-            fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+            lock_state_file(lock)
         except BlockingIOError:
             parser.exit(2, f"Another paper bot uses {args.state}\n")
         book = PaperBook(args.state)
