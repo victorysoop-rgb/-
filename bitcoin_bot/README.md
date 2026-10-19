@@ -16,7 +16,7 @@
 Python 3.12에서 설치:
 
 ```bash
-cd /workspace/-/bitcoin_bot
+cd bitcoin_bot
 python3 -m venv --system-site-packages .venv
 .venv/bin/python -m pip install -r requirements.txt
 .venv/bin/python -m unittest discover -s tests -v
