@@ -3,7 +3,16 @@ import pandas as pd
 import time
 
 exchange = ccxt.binance({
-    "enableRateLimit": True
+    "enableRateLimit": True,
+    # CCXT defaults to ignoring the runtime's proxy and CA configuration.
+    # Requests can use both while retaining TLS verification when enabled.
+    "requests_trust_env": True,
+    "options": {
+        "defaultType": "spot",
+        "fetchMarkets": {"types": ["spot"]},
+        "fetchCurrencies": False,
+        "fetchMargins": False,
+    },
 })
 # Binance's market-data-only host serves public spot endpoints. It does not
 # accept private order calls, which also keeps this paper bot read-only.

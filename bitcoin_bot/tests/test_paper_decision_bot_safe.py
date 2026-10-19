@@ -22,6 +22,9 @@ class SafeDecisionBotTests(unittest.TestCase):
         from data.market_data import exchange
         self.assertEqual(exchange.urls["api"]["public"],
                          "https://data-api.binance.vision/api/v3")
+        self.assertTrue(exchange.session.trust_env)
+        self.assertTrue(exchange.verify)
+        self.assertEqual(exchange.options["fetchMarkets"]["types"], ["spot"])
 
     def test_fresh_closed_bar_opens_only_paper_position(self):
         with tempfile.TemporaryDirectory() as directory:

@@ -22,4 +22,4 @@ python3 -m venv --system-site-packages .venv
 .venv/bin/python -m unittest discover -s tests -v
 ```
 
-공개 현물 데이터는 Binance의 시장 데이터 전용 주소 `data-api.binance.vision`을 사용한다. 현재 클라우드에서는 해당 주소가 네트워크 프록시에서 차단되어 연결 테스트와 장기간 페이퍼 검증이 아직 끝나지 않았다. 환경 설정 초안에 도메인 추가를 저장했지만, 초안만으로 현 실행 환경의 접근 권한은 바뀌지 않는다.
+공개 현물 데이터는 Binance의 시장 데이터 전용 주소 `data-api.binance.vision`을 사용한다. CCXT는 현재 환경의 HTTPS 프록시와 CA 신뢰 설정을 사용하며, 시장 목록은 현물만 가져온다. 2026-10-19 공개 시세를 이용한 1회 실행에서 `NO_TRADE`로 정상 종료했다. 장기간 페이퍼 거래와 전략 수익성 검증은 아직 진행하지 않았다.
